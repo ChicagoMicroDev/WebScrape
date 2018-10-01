@@ -1,0 +1,29 @@
+{
+  "name": "webscrape",
+  "version": "1.0.0",
+  "description": "Week 18 Hw",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/recklesskidjo3/WebScrape.git"
+  },
+  "author": "joe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/recklesskidjo3/WebScrape/issues"
+  },
+  "homepage": "https://github.com/recklesskidjo3/WebScrape#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^5.3.0",
+    "npm": "^6.4.1",
+    "path": "^0.12.7",
+    "request": "^2.88.0"
+  }
+}
