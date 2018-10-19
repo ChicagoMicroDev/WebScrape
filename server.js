@@ -2,10 +2,11 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
+var path = require("path");
 var axios = require("axios");
 var cheerio = require("cheerio");
-
+var exphbs = require("express-handlebars");
+var Note = require("./models/note.js");
 // Require all models
 var db = require("./models");
 
@@ -31,7 +32,41 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 mongoose.Promise = Promise;
 mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true });
 
+
+
+app.use(express.static("public"));
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({extended: true}));
+
+// parse application/json
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '/public')));
+// Set Handlebars.
+var exphbs = require("express-handlebars");
+
+app.engine("handlebars", exphbs({defaultLayout: "main"}));
+app.set("view engine", "handlebars");
+
+// app.engine("handlebars", exphbs({defaultLayout: "main", layoutsDir: __dirname + "/views/layouts"}));
+// app.set("view engine", "handlebars");
 // A GET route for scraping the echoJS website
+
+app.get("/", function (req,res) {
+    db.Article.find({})
+        .then(function (dbArticles) {
+            res.render("index", {
+                articles: dbArticles
+            })
+
+        })
+        .catch(function (err) {
+            res.json(err)
+
+        })
+
+});
+
 app.get("/scrape", function(req, res) {
     // First, we grab the body of the html with request
     axios.get("https://www.chicagobusiness.com/").then(function(response) {
@@ -66,9 +101,40 @@ app.get("/scrape", function(req, res) {
         });
 
         // If we were able to successfully scrape and save an Article, send a message to the client
-        res.send("Scrape Complete");
+        res.redirect("/");
     });
 });
+
+app.get("/articles/:id", function(req, res) {
+    // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+    db.Article.findOne({ _id: req.params.id })
+    // ..and populate all of the notes associated with it
+        .populate("note")
+        .then(function(dbArticle) {
+            // If we were able to successfully find an Article with the given id, send it back to the client
+            res.json(dbArticle);
+        })
+        .catch(function(err) {
+            // If an error occurred, send it to the client
+            res.json(err);
+        });
+});
+
+
+app.post("/notesaved/:id", function (req,res) {
+    var  newnNote = new Note(req.body);
+    newnNote.save(function (error, doc) {
+        if(error){
+            console.log(error)
+        }else{
+            console.log()
+        }
+    })
+
+
+
+
+})
 
 app.listen(PORT, function () {
     console.log("App now listening at localhost:" + PORT);
