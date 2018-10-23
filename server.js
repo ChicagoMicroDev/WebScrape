@@ -6,7 +6,7 @@ var path = require("path");
 var axios = require("axios");
 var cheerio = require("cheerio");
 var exphbs = require("express-handlebars");
-var Note = require("./models/note.js");
+// var Note = require("./models/note.js");
 // Require all models
 var db = require("./models");
 
@@ -30,8 +30,7 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
 mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true });
-
+mongoose.connect("mongodb://localhost/mongoHeadlines", {useNewUrlParser: true});
 
 
 app.use(express.static("public"));
@@ -52,7 +51,7 @@ app.set("view engine", "handlebars");
 // app.set("view engine", "handlebars");
 // A GET route for scraping the echoJS website
 
-app.get("/", function (req,res) {
+app.get("/", function (req, res) {
     db.Article.find({})
         .then(function (dbArticles) {
             res.render("index", {
@@ -67,34 +66,34 @@ app.get("/", function (req,res) {
 
 });
 
-app.get("/scrape", function(req, res) {
+app.get("/scrape", function (req, res) {
     // First, we grab the body of the html with request
-    axios.get("https://www.chicagobusiness.com/").then(function(response) {
+    axios.get("https://www.chicagobusiness.com/").then(function (response) {
         // Then, we load that into cheerio and save it to $ for a shorthand selector
         var $ = cheerio.load(response.data);
 
 
         // Now, we grab every h2 within an article tag, and do the following:
-        $("a h1").each(function(i, element) {
+        $("a h1").each(function (i, element) {
             // Save an empty result object
             var result = {};
 
             // Add the text and href of every link, and save them as properties of the result object
             result.title = $(this).text();
-                // .children().first()
-                // .data;
+            // .children().first()
+            // .data;
             result.link = $(this).parent("a").attr("href");
-                // .children("a")
-                // .attr("href");
+            // .children("a")
+            // .attr("href");
             console.log(result);
 
             // Create a new Article using the `result` object built from scraping
             db.Article.create(result)
-                .then(function(dbArticle) {
+                .then(function (dbArticle) {
                     // View the added result in the console
                     console.log(dbArticle);
                 })
-                .catch(function(err) {
+                .catch(function (err) {
                     // If an error occurred, send it to the client
                     return res.json(err);
                 });
@@ -105,36 +104,34 @@ app.get("/scrape", function(req, res) {
     });
 });
 
-app.get("/articles/:id", function(req, res) {
+app.get("/articles/:id", function (req, res) {
     // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-    db.Article.findOne({ _id: req.params.id })
+    db.Article.findOne({_id: req.params.id})
     // ..and populate all of the notes associated with it
         .populate("note")
-        .then(function(dbArticle) {
+        .then(function (dbArticle) {
             // If we were able to successfully find an Article with the given id, send it back to the client
             res.json(dbArticle);
         })
-        .catch(function(err) {
+        .catch(function (err) {
             // If an error occurred, send it to the client
             res.json(err);
         });
 });
 
 
-app.post("/notesaved/:id", function (req,res) {
-    var  newnNote = new Note(req.body);
-    newnNote.save(function (error, doc) {
-        if(error){
-            console.log(error)
-        }else{
-            console.log()
-        }
-    })
+app.post("/notesaved/:id", function (req, res) {
+    console.log("Im rick james" + req);
+    db.Note.create({title: req.body.titleData, body:req.body.noteData})
+        .then(function(dbNote){
+           res.redirect("/")
+        })
+
+});
 
 
 
 
-})
 
 app.listen(PORT, function () {
     console.log("App now listening at localhost:" + PORT);

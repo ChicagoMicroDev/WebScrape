@@ -1,0 +1,51 @@
+<div class="container">
+        <h1>Here are some new articles to talk about</h1>
+    <form action="/scrape" method="get">
+        <input type="submit" value="Scrape new articles"
+               name="Submit" id="frm1_submit" />
+    </form>
+
+    {{#each articles}}
+
+        <h1>
+            {{this.title}}
+        </h1>
+
+        <a href="{{this.link}}"></a>
+
+
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Leave a comment
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">{{this._id}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/notesaved/{{this._id}}" method="post">
+                            <div class="form-group">
+                                <input name="titleData" type="text" class="form-control" id="text">
+                                <input name="noteData" type="text" class="form-control" id="text">
+
+                            </div>
+                            <input type="submit" value="submit" class="btn btn-primary submit1" data-id="{{this._id}}">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/each}}
+
+</div>
